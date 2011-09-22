@@ -1,10 +1,14 @@
 This is a mirror of http://www.vim.org/scripts/script.php?script_id=3750
 
-Vim integration of Nagelfar for checking .tcl files.
-This is done using the compiler/quickfix features of Vim.
-Contains several useful features, some off by default.
-See the included documentation for details.
+A Tcl Shell for Vim using the integrated tcl interpreter.
 
-Nagelfar can be downloaded from <http://nagelfar.berlios.de/&gt;
+Creates a new buffer and window that resembles a shell. Tcl code can be
+entered and is executed once Enter is pressed.
 
-The plugin lives at: https://github.com/LStinson/Nagelfar-Vim
+Requires Vim be compiles with the +tcl feature.
+
+Based on Shell.vim: http://www.vim.org/scripts/script.php?script_id=118
+
+Vim Home:    http://www.vim.org/scripts/script.php?script_id=3750
+GitHub Home: https://github.com/LStinson/TclShell-Vim
+

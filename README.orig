@@ -1,7 +1,13 @@
-Vim integration of Nagelfar for checking .tcl files.
-This is done using the compiler/quickfix features of Vim.
+A Tcl Shell for Vim using the integrated tcl interpreter.
 
-Nagelfar can be downloaded from <http://nagelfar.berlios.de/>
+Creates a new buffer and window that resembles a shell. Tcl code can be
+entered and is executed once Enter is pressed.
 
-To install copy the files to ~/.vim or ~/vimfiles.
-If using a package manager like pathgen place the whole directory in the bundle directory.
+Requires Vim be compiles with the +tcl feature.
+
+Based on Shell.vim: http://www.vim.org/scripts/script.php?script_id=118
+
+Installation:
+    Copy the files to your ~/.vim or ~/vimfiles dorectory.
+    If using a package manager like pathogen place the whole directory in the
+    bundle directory.
