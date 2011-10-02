@@ -9,6 +9,7 @@ Requires Vim be compiles with the +tcl feature.
 
 Based on Shell.vim: http://www.vim.org/scripts/script.php?script_id=118
 
-Vim Home:    http://www.vim.org/scripts/script.php?script_id=3750
+Vim Home:      http://www.vim.org/scripts/script.php?script_id=3750
 GitHub Home: https://github.com/LStinson/TclShell-Vim
+Tclers Wiki:     http://wiki.tcl.tk/28782
 
