@@ -1,3 +1,4 @@
+" vim:foldmethod=marker
 " ============================================================================
 " File:         TclShell.vim (Autoload)
 " Last Changed: Sun, Sep 25, 2011
@@ -8,42 +9,54 @@
 "               Only load it if/when the shell is called.
 " ============================================================================
 
+" Section: Initialization
+
+" Only load once. {{{1
 if exists("g:loadedTclShellAuto") || &cp || !has('tcl')
     finish
 endif
 let g:loadedTclShellAuto= 1
 
-" Default prompt.
-if !exists("g:TclShellPrompt")
-    let g:TclShellPrompt = "Tcl Shell # "
-endif
 
-" Cache the prompt length for calculations.
+" Defaults  {{{1
+
+" Function: s:SetDefault(option, default) - Set a default value for an option.
+function! s:SetDefault(option, default)
+    if !exists(a:option)
+        execute 'let ' . a:option . '=' . string(a:default)
+    endif
+endfunction
+
+" Default prompt.
+call s:SetDefault('g:TclShellPrompt',           "Tcl Shell # ")
+
+" Default to insert mode in the Shell window.
+call s:SetDefault('g:TclShellInsert',           1)
+
+" Enable the extended Tcl Shell Window mappings by default.
+call s:SetDefault('g:TclShellDisableExtMap',    0)
+
+" Default to a maximum of 50 items in the history.
+" Set to 0 to disable history.
+call s:SetDefault('g:TclShellHistMax',          50)
+
+" No need for the function any longer.
+delfunction s:SetDefault
+
+" Cache the prompt length for calculations and key maps.
 " Save the prompt in case the user changes it.
 let s:prompttext = g:TclShellPrompt
 let s:promptlen = len(s:prompttext)
 
-" Default to insert mode in the Shell window.
-if !exists("g:TclShellInsert")
-    let g:TclShellInsert = 1
-endif
-
-" Enable the extended Tcl Shell Window mappings by defailt.
-if !exists("g:TclShellDisableExtMap")
-    let g:TclShellDisableExtMap = 0
-endif
-
-" Default to a maximum of 50 items in the history.
-" Set to 0 to disable history.
-if !exists("g:TclShellHistMax")
-    let g:TclShellHistMax = 50
-endif
-
 " Start with no history.
 let s:TclShellHistory=[]
 let s:TclShellHistPtr=-1
+"}}}1
 
-" Create or switch to the Tcl Shell buffer.
+" Section: Functions.
+
+" Function: TclShell#OpenShell(...) -- Create or switch to the Tcl Shell buffer. {{{1
+" Takes optional Tcl code to execute.
 function! TclShell#OpenShell(...)
     " If not already in the buffer create/open it.
     if expand("%:p:t") != "_TclShell_"
@@ -76,7 +89,7 @@ function! TclShell#OpenShell(...)
     endif
 endfunction
 
-" Initialize a new buffer.
+" Function: TclShell#Init()         -- Initialize a new buffer. {{{1
 function! TclShell#Init()
     " Standard key mappings to execute code.
     nnoremap <silent> <buffer> <cr>             :call TclShell#Exec()<cr>
@@ -130,7 +143,7 @@ function! TclShell#Init()
     call TclShell#InitTcl()
 endfunction
 
-" Display the prompt.
+" Function: TclShell#Prompt()       -- Display the prompt. {{{1
 function! TclShell#Prompt()
     let l:line = getline("$")
     if matchstr(l:line, s:prompttext) == ""
@@ -146,6 +159,7 @@ function! TclShell#Prompt()
     let s:TclShellHistPtr=-1
 endfunction
 
+" Function: TclShell#Hist(dir)      -- Move in the history. {{{1
 " Move forward and back in history.
 " Direction is true for up, false for down.
 function! TclShell#Hist(dir)
@@ -171,13 +185,13 @@ function! TclShell#Hist(dir)
     endif
 endfunction
 
-" Clear the shell buffer.
+" Function: TclShell#Clear()        -- Clear the shell buffer. {{{1
 function! TclShell#Clear()
     normal ggdG
     :call TclShell#Prompt()
 endfunction
 
-" Execute a line of Tcl code.
+" Function: TclShell#Exec()         -- Execute a line of Tcl code. {{{1
 function! TclShell#Exec()
     let l:line = getline('.')
     if match(l:line, s:prompttext) < 0
@@ -199,17 +213,17 @@ function! TclShell#Exec()
             call append(line('$'), l:tclcode)
             call cursor('$',col([line('$'),'$']))
             :tcl "::_TclShellEval"
-            "call append(line('$'), "")
         endif
         call TclShell#Prompt()
     endif
 endfunction
 
+" Function: TclShell#InitTcl()      -- Initialize the Tcl interpreter. {{{1
 " Create the procedure to evaluate commands entered in the shell.
 " Since the interpreter will likely outlast the buffer check that the
 " procedure does not exist first.
 " Also create a replacement puts command to collect output.
-" Otherwise output goes to the vim output area.
+" Otherwise output goes to the Vim output area.
 function! TclShell#InitTcl()
 :tcl << EOF
 if {[info procs ::_TclShellEval] eq ""} {

@@ -27,16 +27,18 @@ elseif exists("g:loadedTclShell") || &cp || !has('tcl')
 endif
 let g:loadedTclShell= 1
 
-" Default key mapping to open the shell buffer
+" End user command.
+command! -nargs=? TclShell :call TclShell#OpenShell(<f-args>)
+
+" Default key map prefix.
 if !exists("g:TclShellKey")
     let g:TclShellKey = '<Leader>tcl'
 endif
 
-" Key mapping and command.
+" Key mapping to open the Tcl Shell Window.
 if g:TclShellKey != ""
     exec 'nnoremap <silent> ' . g:TclShellKey .
        \ ' :call TclShell#OpenShell()<cr>'
     exec 'vnoremap <silent> ' . g:TclShellKey .
        \ " y:call TclShell#OpenShell('<C-R>" . '"' . "')<cr>"
 endif
-command! -nargs=? TclShell :call TclShell#OpenShell(<f-args>)
