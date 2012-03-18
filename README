@@ -2,10 +2,19 @@ This is a mirror of http://www.vim.org/scripts/script.php?script_id=3750
 
 A Tcl Shell for Vim using the integrated tcl interpreter.
 
-Creates a new buffer and window that resembles a shell. Tcl code can be
-entered and is executed once Enter is pressed.
+Creates a new buffer and window that resembles a shell. Tcl code can be entered
+and is executed once Enter is pressed.
 
 Requires Vim be compiles with the +tcl feature.
+
+Provides two commands:
+- TclShell opens the Tcl Shell Window.
+- TclEval evaluates Tcl code. This command can evaluate provided Tcl code, the
+  entire file (which is transformed to "source FILE") or visual ranges (whole
+  lines only). 
+
+Has the key mapping "<Leader>tcl" to open the Tcl Shell window and execute
+visually selected Tcl code. (Note: "<Leader>" is normally mapped to "\".)
 
 Based on Shell.vim: http://www.vim.org/scripts/script.php?script_id=118
 
@@ -13,3 +22,5 @@ Vim Home:      http://www.vim.org/scripts/script.php?script_id=3750
 GitHub Home: https://github.com/LStinson/TclShell-Vim
 Tclers Wiki:     http://wiki.tcl.tk/28782
 
+I welcome any and all feedback. Please contact me at LoranceStinson AT Gmail....
+Please be sure to put TclShell in the subject so I know what you are emailing about.

@@ -1,7 +1,7 @@
 " vim:foldmethod=marker
 " ============================================================================
 " File:         TclShell.vim (Autoload)
-" Last Changed: Sun, Sep 25, 2011
+" Last Changed: Sun Mar 18 12:17 AM 2012 EDT
 " Maintainer:   Lorance Stinson AT Gmail...
 " License:      Public Domain
 "
@@ -43,6 +43,15 @@ call s:SetDefault('g:TclShellHistMax',          50)
 " No need for the function any longer.
 delfunction s:SetDefault
 
+" The file containing the Tcl code.
+let g:TclShellTclFile = expand('<sfile>:p:r') . '.tcl'
+if !filereadable(g:TclShellTclFile)
+    echoerr 'Unable to read TclShell.tcl!'
+    echoerr 'Please make sure this file is present.'
+    echoerr 'Loading of TclShell aborted!'
+    finish
+endif
+
 " Cache the prompt length for calculations and key maps.
 " Save the prompt in case the user changes it.
 let s:prompttext = g:TclShellPrompt
@@ -55,9 +64,33 @@ let s:TclShellHistPtr=-1
 
 " Section: Functions.
 
+" Function: TclShell#Eval(...)      -- Evaluates Tcl Code. {{{1
+function! TclShell#Eval(...) range
+    " Note the current buffer in case a range was passed..
+    let l:curbufnr = bufnr('%')
+
+    " Open the Tcl window.
+    call TclShell#OpenShell()
+
+    " Get the code to execute.
+    if a:0 != 0 && a:1 != ''
+        " Code was passed.
+        let l:code = substitute(a:1, '[\r\n]*$', '', '')
+    else
+        " Process a range.
+        let l:lines = getbufline(l:curbufnr, a:firstline, a:lastline)
+        let l:code = join(l:lines, "\n")
+    endif
+
+    " Execute the Tcl code.
+    execute 'tcl ::_TclShellEval {' . l:code . '}'
+
+    " Redisplay the prompt.
+    call TclShell#Prompt()
+endfunction
+
 " Function: TclShell#OpenShell(...) -- Create or switch to the Tcl Shell buffer. {{{1
-" Takes optional Tcl code to execute.
-function! TclShell#OpenShell(...)
+function! TclShell#OpenShell()
     " If not already in the buffer create/open it.
     if expand("%:p:t") != "_TclShell_"
         " Make the buffer or switch to it.
@@ -77,15 +110,9 @@ function! TclShell#OpenShell(...)
         " Reset these every time the buffer is entered.
         setlocal buftype=nofile
         setlocal bufhidden=hide
+        setlocal nobuflisted
         setlocal noswapfile
         call TclShell#Prompt()
-    endif
-
-    " If there is an argument execute it.
-    if a:0 == 1
-        let l:line = getline('$') . substitute(a:1, '[\r\n]*$', '', '')
-        call setline('$', l:line)
-        call TclShell#Exec()
     endif
 endfunction
 
@@ -139,8 +166,8 @@ function! TclShell#Init()
         au BufEnter <buffer> startinsert!
     endif
 
-    " Prepare the TCL code to execute Tcl Shell input.
-    call TclShell#InitTcl()
+    " Load the TCL code to execute Tcl Shell input.
+    execute ':tclfile ' . g:TclShellTclFile
 endfunction
 
 " Function: TclShell#Prompt()       -- Display the prompt. {{{1
@@ -210,71 +237,8 @@ function! TclShell#Exec()
                 endif
                 call insert(s:TclShellHistory, l:tclcode)
             endif
-            call append(line('$'), l:tclcode)
-            call cursor('$',col([line('$'),'$']))
-            :tcl "::_TclShellEval"
+            execute 'tcl ::_TclShellEval {' . l:tclcode . '}'
         endif
         call TclShell#Prompt()
     endif
-endfunction
-
-" Function: TclShell#InitTcl()      -- Initialize the Tcl interpreter. {{{1
-" Create the procedure to evaluate commands entered in the shell.
-" Since the interpreter will likely outlast the buffer check that the
-" procedure does not exist first.
-" Also create a replacement puts command to collect output.
-" Otherwise output goes to the Vim output area.
-function! TclShell#InitTcl()
-:tcl << EOF
-if {[info procs ::_TclShellEval] eq ""} {
-    proc _TclShellPuts {args} {
-        global _TclShellOutput
-        set newline "\n"
-        set argc [llength $args]
-        set result [lindex $args end]
-        if {$argc > 1 && [lindex $args 0] == "-nonewline"} {
-            set newline ""
-            set args [lrange $args 1 end]
-            incr argc -1
-        }
-        append result $newline
-        if {$argc > 1 && [lindex $args 0] != "stdout"} {
-            _TclShellPutsReal -nonewline [lindex $args 0] $result
-            return ""
-        }
-        append _TclShellOutput $result
-        return ""
-    }
-    proc ::_TclShellEval {} {
-        rename puts _TclShellPutsReal
-        rename _TclShellPuts puts
-        global _TclShellOutput
-        set _TclShellOutput ""
-        set buf $::vim::current(buffer)
-        set command [$buf get end]
-        $buf delete end
-        # Special handling for variables.
-        if {[string index $command 0] eq {$}} {
-            set command "return $command"
-        }
-        catch {
-            uplevel 1 eval [list $command]
-        } result
-        if {$_TclShellOutput ne ""} {
-            foreach line [split $_TclShellOutput "\n\r"] {
-                $buf append end $line
-            }
-        }
-        if {$result ne ""} {
-            foreach line [split $result "\n\r"] {
-                $buf append end $line
-            }
-        }
-        rename puts _TclShellPuts
-        rename _TclShellPutsReal puts
-        unset _TclShellOutput
-        return 0
-    }
-}
-EOF
 endfunction
