@@ -1,0 +1,10 @@
+:TclShell	TclShell.txt	/*:TclShell*
+TclShell.txt	TclShell.txt	/*TclShell.txt*
+tclshell	TclShell.txt	/*tclshell*
+tclshell-commands	TclShell.txt	/*tclshell-commands*
+tclshell-description	TclShell.txt	/*tclshell-description*
+tclshell-evaluation	TclShell.txt	/*tclshell-evaluation*
+tclshell-installation	TclShell.txt	/*tclshell-installation*
+tclshell-mappings	TclShell.txt	/*tclshell-mappings*
+tclshell-settings	TclShell.txt	/*tclshell-settings*
+tclshell-vim	TclShell.txt	/*tclshell-vim*
